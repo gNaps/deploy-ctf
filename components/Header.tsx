@@ -28,7 +28,7 @@ export default () => {
             <div className={styles.title}>
                 <Link href="/">
                     <a>
-                        <h1>Demo of strapi-plugin-membership-light with NextJS and Magic Link</h1>
+                        <h1>NextJs Magic Template</h1>
                     </a>
                 </Link>
             </div>
@@ -37,7 +37,7 @@ export default () => {
                 {user ? (
                     <Link href="/account">
                         <a>
-                            <img src="/user_avatar.png" alt={user.email} />
+                            <img src="/user-solid.svg" alt={user.email} />
                         </a>
                     </Link>
                 ) : (

@@ -1,0 +1,24 @@
+.table {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+
+.table .element {
+    display: flex;
+    padding: 6px 12px;
+}
+
+.table .element img{
+    width: 10px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.table .element p{
+    margin: 0;
+}
+
+.table .element:nth-of-type(even) {
+    background: #f3f3f3;
+}
