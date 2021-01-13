@@ -44,7 +44,6 @@ export default function Home() {
 
     /**
      * Add the outcome to array outcomes
-     * @param e 
      */
     const handleClickOutcome = () => {
         outcomes.push(outcome)
@@ -62,7 +61,7 @@ export default function Home() {
 
     /**
      * Delete the outcome selected to outcomes
-     * @param e 
+     * @param outcome 
      */
     const deleteOutcome = (outcome) => {
         const newOutcomes = [...outcomes]
