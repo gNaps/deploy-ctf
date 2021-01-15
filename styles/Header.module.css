@@ -8,6 +8,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 32px;
+    background: rgb(22, 82, 240);
+    color: #FFF;
 }
 
 .back {
@@ -17,4 +19,9 @@
 .auth img {
     width: 25px;
     height: 25px;
+    color: #FFF;
+}
+
+.nav a {
+    color: #FFF
 }

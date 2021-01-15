@@ -1,7 +1,5 @@
 import Head from 'next/head';
-import Link from 'next/link';
-import { GetStaticProps } from 'next';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 
 import AuthContext from '../context/AuthContext';
 
@@ -78,7 +76,9 @@ export default function Home() {
      * Save the market
      * @param e 
      */
-    const handleClick = (e: any) => {
+    const handleSubmit = (e: any) => {
+        e.preventDefault()
+
         const market: Market = new Market()
         market.question = question
         market.condition = {outcomes: outcomes, oracle: oracle}
@@ -104,7 +104,7 @@ export default function Home() {
             } 
 
             {user && 
-            <>
+            <form onSubmit={handleSubmit} className={styles.form_market}>
                 <h3> Question </h3>
 
                 <h6>Title</h6>
@@ -158,11 +158,14 @@ export default function Home() {
                     value={fee}
                     name='fee'
                     onChange={handleChangeFee} /> 
-
-                <button onClick={handleClick}>
-                    Save
-                </button>
-            </>
+                    
+                <div className={styles.submit}>
+                    <button type="submit">
+                        Save Market
+                    </button>
+                </div>
+                
+            </form>
             }
         </div>
     );
