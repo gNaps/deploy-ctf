@@ -9,13 +9,13 @@
     padding: 6px 12px;
 }
 
-.table .element img{
+.table .element img {
     width: 10px;
     margin-right: 20px;
     cursor: pointer;
 }
 
-.table .element p{
+.table .element p {
     margin: 0;
 }
 
@@ -28,7 +28,11 @@
     border-radius: 1px;
     border: none;
     color: #fff;
-    padding: .8rem 3.25rem;
+    padding: 0.8rem 3.25rem;
+}
+
+.check_input {
+    border: 1px solid tomato !important;
 }
 
 .form_market input,
@@ -36,8 +40,8 @@
     border-radius: 3px;
     border: 0;
     margin-right: 1rem;
-    padding: .8rem 1rem;
-    width: 23rem;
+    padding: 0.8rem 1rem;
+    width: 100%;
     border: 1px solid #aaa;
 }
 
@@ -47,4 +51,8 @@
 
 .form_market .submit {
     margin: 20px 0px;
+}
+
+.check_p {
+    color: tomato;
 }

@@ -1,10 +1,10 @@
-import { AppProps } from 'next/app';
+import { AppProps } from "next/app";
 
-import '../styles/global.css';
-import Header from '../components/Header';
-import Layout from '../components/Layout';
+import "../styles/global.css";
+import Header from "../components/Header";
+import Layout from "../components/Layout";
 
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider } from "../context/AuthContext";
 
 function App({ Component, pageProps }: AppProps) {
     return (

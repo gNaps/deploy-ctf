@@ -1,10 +1,10 @@
-import Head from 'next/head';
-import { useContext, useState } from 'react';
-import AuthContext from '../context/AuthContext';
-import styles from '../styles/Login.module.css';
+import Head from "next/head";
+import { useContext, useState } from "react";
+import AuthContext from "../context/AuthContext";
+import styles from "../styles/Login.module.css";
 
 export default function Login() {
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState("");
     const { loginUser } = useContext(AuthContext);
 
     /**
@@ -20,7 +20,10 @@ export default function Login() {
         <div>
             <Head>
                 <title>Login</title>
-                <meta name="description" content="Login here to be able to purchase" />
+                <meta
+                    name="description"
+                    content="Login here to be able to purchase"
+                />
             </Head>
 
             <h2>Login</h2>

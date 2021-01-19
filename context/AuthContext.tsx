@@ -1,8 +1,9 @@
-import { createContext, useState, useEffect } from 'react';
-import { Magic } from 'magic-sdk';
-import { MAGIC_PUBLIC_KEY } from '../utils/urls';
-import { useRouter } from 'next/router';
-import { any } from 'prop-types';
+import { createContext, useState, useEffect } from "react";
+import { Magic } from "magic-sdk";
+import { useRouter } from "next/router";
+import { any } from "prop-types";
+import { ethers } from "ethers";
+import { MAGIC_PUBLIC_KEY } from "../utils/urls";
 
 interface AuthContext {
     user: any;
@@ -10,6 +11,7 @@ interface AuthContext {
     logoutUser: () => void;
     checkUserLoggedIn: () => void;
     getToken: () => void;
+    provider: any;
 }
 
 const AuthContext = createContext<AuthContext>({
@@ -17,10 +19,12 @@ const AuthContext = createContext<AuthContext>({
     loginUser: (email: string) => {},
     logoutUser: () => {},
     checkUserLoggedIn: () => {},
-    getToken: () => {}
+    getToken: () => {},
+    provider: any,
 });
 
 let magic;
+let provider;
 
 export const AuthProvider = (props) => {
     const [user, setUser] = useState(null);
@@ -34,7 +38,7 @@ export const AuthProvider = (props) => {
         try {
             await magic.auth.loginWithMagicLink({ email });
             setUser({ email });
-            router.push('/');
+            router.push("/");
         } catch (err) {
             console.log(err);
         }
@@ -47,7 +51,7 @@ export const AuthProvider = (props) => {
         try {
             await magic.user.logout();
             setUser(null);
-            router.push('/');
+            router.push("/");
         } catch (err) {
             console.log(err);
         }
@@ -63,9 +67,9 @@ export const AuthProvider = (props) => {
             if (isLoggedIn) {
                 const { email } = await magic.user.getMetadata();
                 setUser({ email });
-                //Add this just for test
+                // Add this just for test
                 const token = await getToken();
-                console.log('checkUserLoggedIn token', token);
+                console.log("checkUserLoggedIn token", token);
             }
         } catch (err) {
             console.log(err);
@@ -79,7 +83,7 @@ export const AuthProvider = (props) => {
     const getToken = async () => {
         try {
             const token = await magic.user.getIdToken();
-            localStorage.setItem('token', token);
+            localStorage.setItem("token", token);
             return token;
         } catch (err) {
             console.log(err);
@@ -90,13 +94,25 @@ export const AuthProvider = (props) => {
      * Reload user login on app refresh
      */
     useEffect(() => {
-        magic = new Magic(MAGIC_PUBLIC_KEY);
+        magic = new Magic(MAGIC_PUBLIC_KEY, {
+            network: { rpcUrl: "http://127.0.0.1:8545", chainId: 1 },
+        });
+        provider = new ethers.providers.Web3Provider(magic.rpcProvider);
 
         checkUserLoggedIn();
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, logoutUser, loginUser, checkUserLoggedIn, getToken }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                logoutUser,
+                loginUser,
+                checkUserLoggedIn,
+                getToken,
+                provider,
+            }}
+        >
             {props.children}
         </AuthContext.Provider>
     );

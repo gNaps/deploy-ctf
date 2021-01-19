@@ -1,8 +1,8 @@
-import { useContext, useState, useEffect } from 'react';
-import Link from 'next/link';
-import Head from 'next/head';
+import { useContext, useState, useEffect } from "react";
+import Link from "next/link";
+import Head from "next/head";
 
-import AuthContext from '../context/AuthContext';
+import AuthContext from "../context/AuthContext";
 
 export default () => {
     const { user, logoutUser, getToken } = useContext(AuthContext);
@@ -22,7 +22,10 @@ export default () => {
         <div>
             <Head>
                 <title>Your Account</title>
-                <meta name="description" content="Your orders will be shown here" />
+                <meta
+                    name="description"
+                    content="Your orders will be shown here"
+                />
             </Head>
             <h2>Account Page</h2>
 

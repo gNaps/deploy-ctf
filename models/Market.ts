@@ -3,12 +3,18 @@ import { Condition } from "./Condition";
 
 export class Market {
     question: Question;
+
     condition: Condition;
+
     fee: number;
 
-    constructor() {
-        this.question = new Question()
-        this.condition = new Condition()
-        this.fee = 0
+    constructor(question: Question, condition: Condition, fee: number) {
+        this.question = question;
+        this.condition = condition;
+        if (fee === 0) {
+            this.fee = 0.2;
+        } else {
+            this.fee = fee;
+        }
     }
 }

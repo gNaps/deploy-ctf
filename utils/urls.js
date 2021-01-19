@@ -1,2 +1,2 @@
 export const MAGIC_PUBLIC_KEY =
-    process.env.NEXT_PUBLIC_MAGIC_PUBLIC_KEY || 'pk_test_D2DCFB07F72680F3';
+    process.env.NEXT_PUBLIC_MAGIC_PUBLIC_KEY || "pk_live_2B9E70A996B76300";

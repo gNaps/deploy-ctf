@@ -1,4 +1,4 @@
-.title{
+.title {
     text-align: center;
     line-height: 24px;
 }
@@ -9,7 +9,7 @@
     justify-content: space-between;
     padding: 32px;
     background: rgb(22, 82, 240);
-    color: #FFF;
+    color: #fff;
 }
 
 .back {
@@ -19,9 +19,9 @@
 .auth img {
     width: 25px;
     height: 25px;
-    color: #FFF;
+    color: #fff;
 }
 
 .nav a {
-    color: #FFF
+    color: #fff;
 }
