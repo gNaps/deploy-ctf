@@ -1,34 +1,62 @@
 import { createContext, useState, useEffect } from "react";
 import { Magic } from "magic-sdk";
 import { useRouter } from "next/router";
-import { any } from "prop-types";
 import { ethers } from "ethers";
 import { MAGIC_PUBLIC_KEY } from "../utils/urls";
 
+import { User } from "../models/User";
+
 interface AuthContext {
-    user: any;
+    user: User;
     loginUser: (email: string) => void;
     logoutUser: () => void;
     checkUserLoggedIn: () => void;
     getToken: () => void;
-    provider: any;
+    provider: ethers.providers.Web3Provider;
 }
 
 const AuthContext = createContext<AuthContext>({
-    user: any,
-    loginUser: (email: string) => {},
-    logoutUser: () => {},
-    checkUserLoggedIn: () => {},
-    getToken: () => {},
-    provider: any,
+    user: null,
+    loginUser: (email: string) => null,
+    logoutUser: () => null,
+    checkUserLoggedIn: () => null,
+    getToken: () => null,
+    provider: null,
 });
 
 let magic;
-let provider;
+
+/**
+ * Return the magic metwork if dev or production mode
+ */
+const getNetwork = () => {
+    let network: any;
+    if (process.env.NEXT_PUBLIC_NETWORK === "test") {
+        network = { rpcUrl: "http://127.0.0.1:8545", chainId: 1337 };
+    } else {
+        network = { rpcUrl: "https://rpc-mainnet.matic.network", chainId: 137 };
+    }
+
+    return network;
+};
 
 export const AuthProvider = (props) => {
     const [user, setUser] = useState(null);
+    const [provider, setProvider] = useState(null);
     const router = useRouter();
+
+    /**
+     * Log the user out
+     */
+    const logoutUser = async () => {
+        try {
+            await magic.user.logout();
+            setUser(null);
+            router.push("/");
+        } catch (err) {
+            setUser(user);
+        }
+    };
 
     /**
      * Log the user in
@@ -40,21 +68,25 @@ export const AuthProvider = (props) => {
             setUser({ email });
             router.push("/");
         } catch (err) {
-            console.log(err);
+            logoutUser();
         }
     };
 
     /**
-     * Log the user out
+     * Retrieve Magic Issued Bearer Token
+     * This allows User to make authenticated requests
      */
-    const logoutUser = async () => {
+    const getToken = async () => {
+        let token: string;
+
         try {
-            await magic.user.logout();
-            setUser(null);
-            router.push("/");
+            token = await magic.user.getIdToken();
+            localStorage.setItem("token", token);
         } catch (err) {
-            console.log(err);
+            logoutUser();
         }
+
+        return token;
     };
 
     /**
@@ -67,26 +99,9 @@ export const AuthProvider = (props) => {
             if (isLoggedIn) {
                 const { email } = await magic.user.getMetadata();
                 setUser({ email });
-                // Add this just for test
-                const token = await getToken();
-                console.log("checkUserLoggedIn token", token);
             }
         } catch (err) {
-            console.log(err);
-        }
-    };
-
-    /**
-     * Retrieve Magic Issued Bearer Token
-     * This allows User to make authenticated requests
-     */
-    const getToken = async () => {
-        try {
-            const token = await magic.user.getIdToken();
-            localStorage.setItem("token", token);
-            return token;
-        } catch (err) {
-            console.log(err);
+            logoutUser();
         }
     };
 
@@ -95,9 +110,9 @@ export const AuthProvider = (props) => {
      */
     useEffect(() => {
         magic = new Magic(MAGIC_PUBLIC_KEY, {
-            network: { rpcUrl: "http://127.0.0.1:8545", chainId: 1 },
+            network: getNetwork(),
         });
-        provider = new ethers.providers.Web3Provider(magic.rpcProvider);
+        setProvider(new ethers.providers.Web3Provider(magic.rpcProvider));
 
         checkUserLoggedIn();
     }, []);

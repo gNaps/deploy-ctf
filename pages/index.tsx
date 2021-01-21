@@ -1,8 +1,9 @@
 import Head from "next/head";
-import { useContext, useState } from "react";
+import { useContext, useState, FormEvent } from "react";
+import { ethers } from "ethers";
 
 import AuthContext from "../context/AuthContext";
-import { getEth, deployMarket } from "../utils/deployMarket";
+import { deployMarket } from "../utils/deployMarket";
 
 import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
@@ -23,8 +24,8 @@ export default function Home() {
      * On change of inputs update the question
      * @param e
      */
-    const handleChangeQuestion = (e: any) => {
-        const { name, value } = e.target;
+    const handleChangeQuestion = (e: FormEvent<HTMLInputElement>) => {
+        const { name, value } = e.currentTarget;
         setQuestion((element) => ({ ...element, [name]: value }));
     };
 
@@ -32,22 +33,22 @@ export default function Home() {
      * On change of inputs update the outcome
      * @param e
      */
-    const handleChangeOutcome = (e: any) => {
-        setOutcome(e.target.value);
+    const handleChangeOutcome = (e: FormEvent<HTMLInputElement>) => {
+        setOutcome(e.currentTarget.value);
     };
 
     /**
      * On change of inputs update the fee
      * @param e
      */
-    const handleChangeFee = (e: any) => {
-        setFee(e.target.value);
+    const handleChangeFee = (e: FormEvent<HTMLInputElement>) => {
+        setFee(parseFloat(e.currentTarget.value));
     };
 
     /**
      * Add the outcome to array outcomes
      */
-    const handleClickOutcome = (e) => {
+    const handleClickOutcome = (e: FormEvent<HTMLInputElement>) => {
         e.preventDefault();
 
         if (outcome && outcome !== "") {
@@ -61,15 +62,15 @@ export default function Home() {
      * On change of inputs update the oracle
      * @param e
      */
-    const handleChangeOracle = (e: any) => {
-        setOracle(e.target.value);
+    const handleChangeOracle = (e: FormEvent<HTMLInputElement>) => {
+        setOracle(e.currentTarget.value);
     };
 
     /**
      * Delete the outcome selected to outcomes
      * @param outcome
      */
-    const deleteOutcome = (outcomeToDelete) => {
+    const deleteOutcome = (outcomeToDelete: string) => {
         const newOutcomes = [...outcomes];
         const index = outcomes.findIndex((out) => out === outcomeToDelete);
 
@@ -84,11 +85,12 @@ export default function Home() {
      * Save the market
      * @param e
      */
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         let flagTitle = false;
         let flagDescription = false;
+        let signer: ethers.Signer;
 
         if (question.title === "") {
             setCheckTitle(true);
@@ -109,10 +111,9 @@ export default function Home() {
         if (!flagDescription && !flagTitle) {
             const condition = new Condition(outcomes, oracle);
             const market: Market = new Market(question, condition, fee);
+            signer = provider.getSigner();
 
-            console.log("Market => ", market);
-
-            await deployMarket(market, provider);
+            await deployMarket(market, signer);
         }
     };
 
@@ -169,14 +170,14 @@ export default function Home() {
 
                     {outcomes && (
                         <div className={styles.table}>
-                            {outcomes.map((outcome) => (
+                            {outcomes.map((out) => (
                                 <div
                                     className={styles.element}
-                                    key={outcome}
-                                    onClick={() => deleteOutcome(outcome)}
+                                    key={out}
+                                    onClick={() => deleteOutcome(out)}
                                 >
-                                    <img src="/times-solid.svg" />
-                                    <p>{outcome}</p>
+                                    <img src="/times-solid.svg" alt="delete" />
+                                    <p>{out}</p>
                                 </div>
                             ))}
                         </div>
