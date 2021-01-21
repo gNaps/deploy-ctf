@@ -24,7 +24,9 @@ export default function Home() {
      * On change of inputs update the question
      * @param e
      */
-    const handleChangeQuestion = (e: FormEvent<HTMLInputElement>) => {
+    const handleChangeQuestion = (
+        e: FormEvent<HTMLInputElement> | FormEvent<HTMLTextAreaElement>,
+    ) => {
         const { name, value } = e.currentTarget;
         setQuestion((element) => ({ ...element, [name]: value }));
     };
@@ -48,7 +50,7 @@ export default function Home() {
     /**
      * Add the outcome to array outcomes
      */
-    const handleClickOutcome = (e: FormEvent<HTMLInputElement>) => {
+    const handleClickOutcome = (e: FormEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         if (outcome && outcome !== "") {
