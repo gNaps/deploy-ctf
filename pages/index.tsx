@@ -1,9 +1,9 @@
 import Head from "next/head";
 import { useContext, useState, FormEvent } from "react";
-import { ethers } from "ethers";
 
 import AuthContext from "../context/AuthContext";
 import { deployMarket } from "../utils/deployMarket";
+import Confirm from "../components/Confirm";
 
 import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
@@ -19,6 +19,8 @@ export default function Home() {
     const [oracle, setOracle] = useState("");
     const [checkTitle, setCheckTitle] = useState(false);
     const [checkDescription, setCheckDescription] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [confirm, setConfirm] = useState(false);
 
     /**
      * On change of inputs update the question
@@ -84,39 +86,39 @@ export default function Home() {
     };
 
     /**
-     * Save the market
+     * Requires confirm to save Markets
      * @param e
      */
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        let flagTitle = false;
-        let flagDescription = false;
-        let signer: ethers.Signer;
+        const invalidTitle = question.title === "";
+        const invalidDescription = question.description === "";
 
-        if (question.title === "") {
-            setCheckTitle(true);
-            flagTitle = true;
+        setCheckTitle(invalidTitle);
+        setCheckDescription(invalidDescription);
+
+        if (!invalidTitle && !invalidDescription) {
+            setConfirm(true);
         } else {
-            setCheckTitle(false);
-            flagTitle = false;
+            setLoading(false);
         }
+    };
 
-        if (question.description === "") {
-            setCheckDescription(true);
-            flagDescription = true;
-        } else {
-            setCheckDescription(false);
-            flagDescription = false;
-        }
+    /**
+     * Deploy the market
+     */
+    const deploy = async () => {
+        setLoading(true);
 
-        if (!flagDescription && !flagTitle) {
-            const condition = new Condition(outcomes, oracle);
-            const market: Market = new Market(question, condition, fee);
-            signer = provider.getSigner();
+        const condition = new Condition(outcomes, oracle);
+        const market: Market = new Market(question, condition, fee);
+        const signer = provider.getSigner();
 
-            await deployMarket(market, signer);
-        }
+        const deployRes = await deployMarket(market, signer);
+
+        setConfirm(false);
+        setLoading(false);
     };
 
     return (
@@ -205,6 +207,17 @@ export default function Home() {
                         <button type="submit">Save Market</button>
                     </div>
                 </form>
+            )}
+
+            {confirm && (
+                <Confirm
+                    yes={deploy}
+                    no={() => {
+                        setConfirm(false);
+                        setLoading(false);
+                    }}
+                    loading={loading}
+                />
             )}
         </div>
     );

@@ -2,7 +2,8 @@ import { createContext, useState, useEffect } from "react";
 import { Magic } from "magic-sdk";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
-import { MAGIC_PUBLIC_KEY } from "../utils/urls";
+// import { MAGIC_PUBLIC_KEY } from "../utils/urls";
+import { MATIC_CONFIG, MAGIC_KEY } from "../utils/network";
 
 import { User } from "../models/User";
 
@@ -109,8 +110,8 @@ export const AuthProvider = (props) => {
      * Reload user login on app refresh
      */
     useEffect(() => {
-        magic = new Magic(MAGIC_PUBLIC_KEY, {
-            network: getNetwork(),
+        magic = new Magic(MAGIC_KEY, {
+            network: MATIC_CONFIG,
         });
         setProvider(new ethers.providers.Web3Provider(magic.rpcProvider));
 

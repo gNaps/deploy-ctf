@@ -4,7 +4,9 @@ import Head from "next/head";
 
 import AuthContext from "../context/AuthContext";
 
-export default () => {
+import styles from "../styles/Account.module.css";
+
+const Account = () => {
     const { user, logoutUser, getToken } = useContext(AuthContext);
 
     if (!user) {
@@ -22,20 +24,18 @@ export default () => {
         <div>
             <Head>
                 <title>Your Account</title>
-                <meta
-                    name="description"
-                    content="Your orders will be shown here"
-                />
+                <meta name="description" content="Your account page" />
             </Head>
             <h2>Account Page</h2>
 
-            <hr />
             <p>Logged in as {user.email}</p>
-            <p>
-                <a href="#" onClick={logoutUser}>
-                    Logout
-                </a>
-            </p>
+            <p>Connected on {process.env.NEXT_PUBLIC_ENVIRONMENT}</p>
+
+            <button onClick={logoutUser} className={styles.button}>
+                Logout
+            </button>
         </div>
     );
 };
+
+export default Account;

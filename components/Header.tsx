@@ -5,7 +5,7 @@ import AuthContext from "../context/AuthContext";
 
 import styles from "../styles/Header.module.css";
 
-export default () => {
+const Header = () => {
     const router = useRouter();
     const isHome = router.pathname === "/";
 
@@ -22,28 +22,24 @@ export default () => {
 
     return (
         <div className={styles.nav}>
-            {!isHome && (
-                <div className={styles.back}>
-                    <a href="#" onClick={goBack}>
-                        {"<"} Back{" "}
-                    </a>
-                </div>
-            )}
             <div className={styles.title}>
                 <Link href="/">
                     <a>
-                        <h2>NextJs Magic Template</h2>
+                        <img src="/polymarket.svg" alt="polymarket logo" />
                     </a>
                 </Link>
             </div>
 
             <div className={styles.auth}>
                 {user ? (
-                    <Link href="/account">
-                        <a>
-                            <img src="/user-solid.svg" alt={user.email} />
-                        </a>
-                    </Link>
+                    <div>
+                        <Link href="/account">
+                            <a>
+                                <img src="/user-solid.svg" alt={user.email} />
+                            </a>
+                        </Link>
+                        <p>Live on {process.env.NEXT_PUBLIC_ENVIRONMENT}</p>
+                    </div>
                 ) : (
                     <Link href="/login">
                         <a>Log In</a>
@@ -53,3 +49,5 @@ export default () => {
         </div>
     );
 };
+
+export default Header;

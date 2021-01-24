@@ -1,8 +1,14 @@
 import { ethers } from "ethers";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
 import { Market } from "../models/Market";
+import {
+    CONDITIONAL_TOKENS_ADDRESS,
+    POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
+    USDC_ADDRESS,
+} from "./network";
 
 import abi from "./abi/ConditionalTokens.json";
+import abiPolymarket from "./abi/PolymarketMarketMakerFactory.json";
 
 /**
  * Returns the questionId hashing title and description
@@ -11,24 +17,6 @@ import abi from "./abi/ConditionalTokens.json";
  */
 const getQuestionId = (title: string, description: string): string => {
     return solidityKeccak256(["string", "string"], [title, description]);
-};
-
-/**
- * Return the signer if dev or production mode
- * @param signer
- */
-const getSigner = (signer: ethers.Signer) => {
-    if (process.env.NEXT_PUBLIC_NETWORK === "test") {
-        const wallet = new ethers.Wallet(
-            process.env.NEXT_PUBLIC_PRIVATE_KEY_ACCOUNT,
-        );
-        const connectedWallet = wallet.connect(
-            new ethers.providers.JsonRpcProvider("http://localhost:8545"),
-        );
-
-        return connectedWallet;
-    }
-    return signer;
 };
 
 /**
@@ -50,27 +38,6 @@ const prepareCondition = async (
         questionId,
         numOutcomes,
     );
-};
-
-/**
- * Given a market and a signer deploys the market
- * @param market
- * @param provider
- */
-export const deployMarket = async (market: Market, signer: ethers.Signer) => {
-    const contractSigner = getSigner(signer);
-
-    const conditionalTokens = new ethers.Contract(
-        process.env.NEXT_PUBLIC_CONTRACT,
-        abi,
-        contractSigner,
-    );
-
-    console.log("Preparing Condition...");
-    const prepareTx = await prepareCondition(conditionalTokens, market);
-    await prepareTx.wait();
-    // console.log("Deploying Market...");
-    // const deployTx = await deployPolymarket(marketFactory, conditionalTokens.address, USDC_ADDRESS, market);
 };
 
 /**
@@ -96,5 +63,38 @@ const deployPolymarket = async (
         collateralTokenAddress,
         questionObject,
         fee,
+    );
+};
+
+/**
+ * Given a market and a signer deploys the market
+ * @param market
+ * @param provider
+ */
+export const deployMarket = async (
+    market: Market,
+    signer: ethers.Signer,
+): Promise<any> => {
+    const conditionalTokens = new ethers.Contract(
+        CONDITIONAL_TOKENS_ADDRESS,
+        abi,
+        signer,
+    );
+
+    const marketFactory = new ethers.Contract(
+        POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
+        abiPolymarket,
+        signer,
+    );
+
+    console.log("Preparing Condition...");
+    const prepareTx = await prepareCondition(conditionalTokens, market);
+    await prepareTx.wait();
+    console.log("Deploying Market...");
+    const deployTx = await deployPolymarket(
+        marketFactory,
+        conditionalTokens.address,
+        USDC_ADDRESS,
+        market,
     );
 };
