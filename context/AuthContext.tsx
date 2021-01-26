@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import { Magic } from "magic-sdk";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
@@ -8,12 +8,12 @@ import { MATIC_CONFIG, MAGIC_KEY } from "../utils/network";
 import { User } from "../models/User";
 
 interface AuthContext {
-    user: User;
+    user: User | null;
     loginUser: (email: string) => void;
     logoutUser: () => void;
     checkUserLoggedIn: () => void;
     getToken: () => void;
-    provider: ethers.providers.Web3Provider;
+    provider: ethers.providers.Web3Provider | null;
 }
 
 const AuthContext = createContext<AuthContext>({
@@ -26,20 +26,6 @@ const AuthContext = createContext<AuthContext>({
 });
 
 let magic;
-
-/**
- * Return the magic metwork if dev or production mode
- */
-const getNetwork = () => {
-    let network: any;
-    if (process.env.NEXT_PUBLIC_NETWORK === "test") {
-        network = { rpcUrl: "http://127.0.0.1:8545", chainId: 1337 };
-    } else {
-        network = { rpcUrl: "https://rpc-mainnet.matic.network", chainId: 137 };
-    }
-
-    return network;
-};
 
 export const AuthProvider = (props) => {
     const [user, setUser] = useState(null);
@@ -63,10 +49,16 @@ export const AuthProvider = (props) => {
      * Log the user in
      * @param {string} email
      */
-    const loginUser = async (email) => {
+    const loginUser = async (email: string) => {
         try {
             await magic.auth.loginWithMagicLink({ email });
-            setUser({ email });
+            const magicProvider = new ethers.providers.Web3Provider(
+                magic.rpcProvider,
+            );
+            const signer = magicProvider.getSigner();
+            const address = await signer.getAddress();
+            setProvider(magicProvider);
+            setUser({ email, address });
             router.push("/");
         } catch (err) {
             logoutUser();
@@ -99,7 +91,13 @@ export const AuthProvider = (props) => {
 
             if (isLoggedIn) {
                 const { email } = await magic.user.getMetadata();
-                setUser({ email });
+                const magicProvider = new ethers.providers.Web3Provider(
+                    magic.rpcProvider,
+                );
+                const signer = magicProvider.getSigner();
+                const address = await signer.getAddress();
+                setProvider(magicProvider);
+                setUser({ email, address });
             }
         } catch (err) {
             logoutUser();
@@ -113,7 +111,6 @@ export const AuthProvider = (props) => {
         magic = new Magic(MAGIC_KEY, {
             network: MATIC_CONFIG,
         });
-        setProvider(new ethers.providers.Web3Provider(magic.rpcProvider));
 
         checkUserLoggedIn();
     }, []);
@@ -135,3 +132,33 @@ export const AuthProvider = (props) => {
 };
 
 export default AuthContext;
+
+export const useAddress = () => {
+    const { user } = useContext(AuthContext);
+
+    return user.address;
+};
+
+export const useLogin = () => {
+    const { loginUser } = useContext(AuthContext);
+
+    return loginUser;
+};
+
+export const useLogout = () => {
+    const { logoutUser } = useContext(AuthContext);
+
+    return logoutUser;
+};
+
+export const useUser = () => {
+    const { user } = useContext(AuthContext);
+
+    return user;
+};
+
+export const useProvider = () => {
+    const { provider } = useContext(AuthContext);
+
+    return provider;
+};

@@ -1,3 +1,5 @@
+import { ORACLE_ADDRESS } from "../utils/network";
+
 export class Condition {
     outcomes: Array<string>;
 
@@ -11,8 +13,7 @@ export class Condition {
         }
 
         if (oracle === "") {
-            this.oracle = oracle;
-            // condition.oracle = default oracle address
+            this.oracle = ORACLE_ADDRESS;
         } else {
             this.oracle = oracle;
         }

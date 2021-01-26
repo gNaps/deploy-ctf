@@ -29,6 +29,7 @@ type Environment = {
     conditionalTokens: string;
     proxyWalletFactory: string;
     polymarketMarketMakerFactory: string;
+    oracle: string;
 };
 
 /*
@@ -75,6 +76,7 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
         proxyWalletFactory: "0xaB45c5A4B0c941a2F231C04C3f49182e1A254052",
         polymarketMarketMakerFactory:
             "0xeF2e639bbDBBAF483Cb8E9FaaE20B96534C740D3",
+        oracle: "0x2EF848Af24eB23E8EA67184B6391B0C5a1775ed5",
     },
     mumbai: {
         mainnetNetwork: {
@@ -101,6 +103,7 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
         proxyWalletFactory: "0xaB45c5A4B0c941a2F231C04C3f49182e1A254052",
         polymarketMarketMakerFactory:
             "0xb66ad17f931AAbBACa85bc79D28F74284b8eE04c",
+        oracle: "0x2EF848Af24eB23E8EA67184B6391B0C5a1775ed5",
     },
 };
 
@@ -126,3 +129,5 @@ export const USDC_ADDRESS =
 export const MAINNET_USDC_ADDRESS =
     process.env.NEXT_PUBLIC_MAINNET_USDC ||
     selectedEnvironmentConfig.mainnetUsdc;
+
+export const ORACLE_ADDRESS = selectedEnvironmentConfig.oracle;

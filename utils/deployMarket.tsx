@@ -29,12 +29,11 @@ const prepareCondition = async (
     market: Market,
 ): Promise<any> => {
     const { condition, question } = market;
-    const oracleAddress = process.env.NEXT_PUBLIC_ORACLE;
     const questionId = getQuestionId(question.title, question.description);
     const numOutcomes = condition.outcomes.length;
 
     return conditionalTokensContract.prepareCondition(
-        oracleAddress,
+        condition.oracle,
         questionId,
         numOutcomes,
     );
