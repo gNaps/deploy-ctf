@@ -7,7 +7,6 @@ import styles from "../styles/Header.module.css";
 
 const Header = () => {
     const router = useRouter();
-    const isHome = router.pathname === "/";
 
     const { user } = useContext(AuthContext);
 

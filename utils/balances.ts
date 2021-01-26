@@ -1,5 +1,9 @@
 import { BigNumber, ethers } from "ethers";
 
+/**
+ * Given a provider return their ETH balance
+ * @param provider
+ */
 export const getETHBalance = async (
     provider: ethers.providers.Web3Provider,
 ): Promise<BigNumber> => {

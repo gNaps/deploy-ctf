@@ -2,7 +2,6 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { Magic } from "magic-sdk";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
-// import { MAGIC_PUBLIC_KEY } from "../utils/urls";
 import { MATIC_CONFIG, MAGIC_KEY } from "../utils/network";
 
 import { User } from "../models/User";

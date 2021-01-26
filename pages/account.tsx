@@ -1,16 +1,15 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import useETHBalance from "../hooks/useETHBalance";
 import { formatETH } from "../utils/format";
-
 
 import AuthContext, { useAddress } from "../context/AuthContext";
 
 import styles from "../styles/Account.module.css";
 
 const Account = () => {
-    const { user, logoutUser, getToken } = useContext(AuthContext);
+    const { user, logoutUser } = useContext(AuthContext);
     const address = useAddress();
     const [ethBalance] = useETHBalance();
 
@@ -38,8 +37,8 @@ const Account = () => {
 
             <p>Your current address is {address}</p>
 
-            <p>Founds: {formatETH(ethBalance)}</p>
-            
+            <p>Funds: {formatETH(ethBalance)}</p>
+
             <button onClick={logoutUser} className={styles.button}>
                 Logout
             </button>
