@@ -15,7 +15,7 @@ export default function Home() {
     const [question, setQuestion] = useState(new Question());
     const [outcomes, setOutcomes] = useState([]);
     const [outcome, setOutcome] = useState("");
-    const [fee, setFee] = useState(0);
+    const [fee, setFee] = useState(0.02);
     const [oracle, setOracle] = useState("");
     const [checkTitle, setCheckTitle] = useState(false);
     const [checkDescription, setCheckDescription] = useState(false);
@@ -115,7 +115,12 @@ export default function Home() {
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
 
-        const deployRes = await deployMarket(market, signer);
+        try{
+            const deployRes = await deployMarket(market, signer);
+            alert(`deployRes ${deployRes?.hash}`)
+        } catch(err){
+            alert(`Somethign went wrong ${err.toString()}`)
+        }
 
         setConfirm(false);
         setLoading(false);

@@ -37,7 +37,7 @@ const Account = () => {
 
             <p>Your current address is {address}</p>
 
-            <p>Founds: {formatETH(ethBalance)}</p>
+            <p>Funds: {formatETH(ethBalance)}</p>
 
             <button onClick={logoutUser} className={styles.button}>
                 Logout

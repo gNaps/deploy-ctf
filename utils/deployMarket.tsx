@@ -96,4 +96,6 @@ export const deployMarket = async (
         USDC_ADDRESS,
         market,
     );
+
+    return deployTx;
 };
