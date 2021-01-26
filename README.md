@@ -12,13 +12,12 @@ NextJS
 
 ## Quickstart
 
-Clone this
-
-Instal dependencies
+Install dependencies
 `yarn`
 
 Set up .env file with
 `NEXT_PUBLIC_MAGIC_KEY #Magic key`
+
 `NEXT_PUBLIC_ENVIRONMENT #Mumbai for test or Mainnet for production`
 
 Run
