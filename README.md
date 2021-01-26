@@ -5,11 +5,6 @@ Tool that allows you to deploy a market.
 
 Make sure you have founds on your address, if not please check this https://faucet.matic.network/
 
-
-Tech:
-Typescript
-NextJS
-
 ## Quickstart
 
 Install dependencies
