@@ -175,14 +175,14 @@ export default function Home() {
                     {outcomes && (
                         <div className={styles.table}>
                             {outcomes.map((out) => (
-                                <div
+                                <button
                                     className={styles.element}
                                     key={out}
                                     onClick={() => deleteOutcome(out)}
                                 >
                                     <img src="/times-solid.svg" alt="delete" />
                                     <p>{out}</p>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     )}
