@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthContext>({
 let magic;
 
 export const AuthProvider = (props) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const [provider, setProvider] = useState(null);
     const router = useRouter();
 
@@ -135,7 +135,7 @@ export default AuthContext;
 export const useAddress = () => {
     const { user } = useContext(AuthContext);
 
-    return user.address;
+    return user?.address;
 };
 
 export const useLogin = () => {
