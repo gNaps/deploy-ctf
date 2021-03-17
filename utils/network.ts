@@ -93,8 +93,8 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
         strapiUrl: "",
         subgraphUrl:
             "https://api.mumbai-graph.matic.today/subgraphs/name/TokenUnion/polymarket",
-        maticUsdc: "0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1",
-        mainnetUsdc: "0x655F2166b0709cd575202630952D71E2bB0d61Af",
+        maticUsdc: "0xdEe897d5E6eaA6365F293c37cB3fA8335B9B8f3F",
+        mainnetUsdc: "0x9DA9Bc12b19b22d7C55798F722A1B6747AE9A710",
         maticBridge: {
             rootChainManagerProxy: "0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74",
             erc20PredicateProxy: "0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34",
@@ -112,7 +112,7 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
 const selectedEnvironment = process.env.NEXT_PUBLIC_ENVIRONMENT;
 if (selectedEnvironment !== "mainnet" && selectedEnvironment !== "mumbai") {
     throw new Error(
-        "Invalid environment. Please select one of matic or mumbai",
+        `Invalid environment: ${selectedEnvironment}. Please select one of matic or mumbai`,
     );
 }
 
