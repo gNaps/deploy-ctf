@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
+import { BigNumber } from "@ethersproject/bignumber";
 import { Market } from "../models/Market";
 import {
     CONDITIONAL_TOKENS_ADDRESS,
@@ -73,6 +74,7 @@ const deployPolymarket = async (
 export const deployMarket = async (
     market: Market,
     signer: ethers.Signer,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const conditionalTokens = new ethers.Contract(
         CONDITIONAL_TOKENS_ADDRESS,

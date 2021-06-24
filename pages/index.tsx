@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useContext, useState, FormEvent } from "react";
 
+import { BigNumber } from "@ethersproject/bignumber";
 import AuthContext from "../context/AuthContext";
 import { deployMarket } from "../utils/deployMarket";
 import Confirm from "../components/Confirm";
@@ -9,6 +10,8 @@ import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
 import { Question } from "../models/Question";
 import { Condition } from "../models/Condition";
+
+import HttpWrapper from "../utils/http_wrapper";
 
 export default function Home() {
     const { user, provider } = useContext(AuthContext);
@@ -106,6 +109,31 @@ export default function Home() {
     };
 
     /**
+     * Fetch gas price
+     */
+    const getGasPrice = async (speed: string): Promise<BigNumber> => {
+        const GAS_STATION = "https://gasstation-mainnet.matic.network/";
+        let gasPrice;
+        try {
+            console.log(`Fetching gas from ${GAS_STATION}`);
+            const httpWrapper = new HttpWrapper();
+            const { data } = await httpWrapper.get(GAS_STATION);
+            const gasPriceGwei = data[speed];
+
+            const gweiToWeiMultiplier = BigNumber.from(10).pow(9);
+            gasPrice = gweiToWeiMultiplier.mul(Math.ceil(gasPriceGwei));
+            console.log(`Gas found: ${gasPrice}`);
+            return gasPrice;
+        } catch (e) {
+            console.log(`Failed to get gas price from ${GAS_STATION}: `, e);
+        }
+        // fallback to network gas price in the worst case
+        console.log(`Falling back to network gas: ${gasPrice}`);
+        gasPrice = await provider.getGasPrice();
+        return gasPrice;
+    };
+
+    /**
      * Deploy the market
      */
     const deploy = async () => {
@@ -114,9 +142,10 @@ export default function Home() {
         const condition = new Condition(outcomes, oracle);
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
-
-        try{
-            const deployRes = await deployMarket(market, signer);
+        const defaultSpeed = "fast";
+        try {
+            const gasPrice = await getGasPrice(defaultSpeed);
+            const deployRes = await deployMarket(market, signer, gasPrice);
             alert(`deployRes ${deployRes?.hash}`)
         } catch(err){
             alert(`Somethign went wrong ${err.toString()}`)
