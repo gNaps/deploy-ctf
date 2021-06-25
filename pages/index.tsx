@@ -3,6 +3,7 @@ import { useContext, useState, FormEvent } from "react";
 
 import AuthContext from "../context/AuthContext";
 import { deployMarket } from "../utils/deployMarket";
+import { getGasPrice } from "../utils/gas_lib";
 import Confirm from "../components/Confirm";
 
 import styles from "../styles/Home.module.css";
@@ -21,6 +22,8 @@ export default function Home() {
     const [checkDescription, setCheckDescription] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState(false);
+    const [manualGasCheck, setManualGasCheck] = useState(false);
+    const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
 
     /**
      * On change of inputs update the question
@@ -105,6 +108,10 @@ export default function Home() {
         }
     };
 
+    const handleChangeUserGasPrice = (e: FormEvent<HTMLInputElement>) => {
+        setUserDefinedGas(parseFloat(e.currentTarget.value));
+    };
+
     /**
      * Deploy the market
      */
@@ -114,12 +121,12 @@ export default function Home() {
         const condition = new Condition(outcomes, oracle);
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
-
-        try{
-            const deployRes = await deployMarket(market, signer);
-            alert(`deployRes ${deployRes?.hash}`)
-        } catch(err){
-            alert(`Somethign went wrong ${err.toString()}`)
+        try {
+            const gasPrice = await getGasPrice(userDefinedGas, provider);
+            const deployRes = await deployMarket(market, signer, gasPrice);
+            alert(`deployRes ${deployRes?.hash}`);
+        } catch (err) {
+            alert(`Something went wrong ${err.toString()}`);
         }
 
         setConfirm(false);
@@ -208,8 +215,52 @@ export default function Home() {
                         onChange={handleChangeFee}
                     />
 
+                    <div>
+                        <label htmlFor="manualGasPrice">
+                            <div>
+                                <input
+                                    style={{ width: "20px", margin: "1.5px" }}
+                                    id="manualGasPrice"
+                                    type="checkbox"
+                                    checked={manualGasCheck}
+                                    onChange={(e) =>
+                                        setManualGasCheck(
+                                            e.currentTarget.checked,
+                                        )
+                                    }
+                                />
+                                <small>Manually enter gas price?</small>
+                            </div>
+                        </label>
+                        <input
+                            type="number"
+                            min={0}
+                            max={1000}
+                            hidden={!manualGasCheck}
+                            value={userDefinedGas}
+                            name="userDefinedGas"
+                            onChange={handleChangeUserGasPrice}
+                        />
+                    </div>
+
                     <div className={styles.submit}>
-                        <button type="submit">Save Market</button>
+                        <button
+                            disabled={
+                                manualGasCheck && Number.isNaN(userDefinedGas)
+                            }
+                            type="submit"
+                        >
+                            Save Market
+                        </button>
+                        <p
+                            hidden={
+                                !manualGasCheck ||
+                                (manualGasCheck &&
+                                    !Number.isNaN(userDefinedGas))
+                            }
+                        >
+                            Manually input gas is invalid
+                        </p>
                     </div>
                 </form>
             )}

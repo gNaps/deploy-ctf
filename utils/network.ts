@@ -112,7 +112,7 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
 const selectedEnvironment = process.env.NEXT_PUBLIC_ENVIRONMENT;
 if (selectedEnvironment !== "mainnet" && selectedEnvironment !== "mumbai") {
     throw new Error(
-        `Invalid environment: ${selectedEnvironment}. Please select one of matic or mumbai`,
+        `Invalid environment: ${selectedEnvironment}. Please select one of mainnet or mumbai`,
     );
 }
 
