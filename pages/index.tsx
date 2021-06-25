@@ -1,17 +1,15 @@
 import Head from "next/head";
 import { useContext, useState, FormEvent } from "react";
 
-import { BigNumber } from "@ethersproject/bignumber";
 import AuthContext from "../context/AuthContext";
 import { deployMarket } from "../utils/deployMarket";
+import { getGasPrice } from "../utils/gas_lib";
 import Confirm from "../components/Confirm";
 
 import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
 import { Question } from "../models/Question";
 import { Condition } from "../models/Condition";
-
-import HttpWrapper from "../utils/http_wrapper";
 
 export default function Home() {
     const { user, provider } = useContext(AuthContext);
@@ -24,6 +22,8 @@ export default function Home() {
     const [checkDescription, setCheckDescription] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState(false);
+    const [manualGasCheck, setManualGasCheck] = useState(false);
+    const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
 
     /**
      * On change of inputs update the question
@@ -108,29 +108,8 @@ export default function Home() {
         }
     };
 
-    /**
-     * Fetch gas price
-     */
-    const getGasPrice = async (speed: string): Promise<BigNumber> => {
-        const GAS_STATION = "https://gasstation-mainnet.matic.network/";
-        let gasPrice;
-        try {
-            console.log(`Fetching gas from ${GAS_STATION}`);
-            const httpWrapper = new HttpWrapper();
-            const { data } = await httpWrapper.get(GAS_STATION);
-            const gasPriceGwei = data[speed];
-
-            const gweiToWeiMultiplier = BigNumber.from(10).pow(9);
-            gasPrice = gweiToWeiMultiplier.mul(Math.ceil(gasPriceGwei));
-            console.log(`Gas found: ${gasPrice}`);
-            return gasPrice;
-        } catch (e) {
-            console.log(`Failed to get gas price from ${GAS_STATION}: `, e);
-        }
-        // fallback to network gas price in the worst case
-        console.log(`Falling back to network gas: ${gasPrice}`);
-        gasPrice = await provider.getGasPrice();
-        return gasPrice;
+    const handleChangeUserGasPrice = (e: FormEvent<HTMLInputElement>) => {
+        setUserDefinedGas(parseFloat(e.currentTarget.value));
     };
 
     /**
@@ -142,13 +121,12 @@ export default function Home() {
         const condition = new Condition(outcomes, oracle);
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
-        const defaultSpeed = "fast";
         try {
-            const gasPrice = await getGasPrice(defaultSpeed);
+            const gasPrice = await getGasPrice(userDefinedGas, provider);
             const deployRes = await deployMarket(market, signer, gasPrice);
-            alert(`deployRes ${deployRes?.hash}`)
-        } catch(err){
-            alert(`Somethign went wrong ${err.toString()}`)
+            alert(`deployRes ${deployRes?.hash}`);
+        } catch (err) {
+            alert(`Something went wrong ${err.toString()}`);
         }
 
         setConfirm(false);
@@ -237,8 +215,47 @@ export default function Home() {
                         onChange={handleChangeFee}
                     />
 
+                    <div>
+                        <label htmlFor="manualGasPrice">
+                            Manually enter gas price?
+                            <input
+                                id="manualGasPrice"
+                                type="checkbox"
+                                checked={manualGasCheck}
+                                onChange={(e) =>
+                                    setManualGasCheck(e.currentTarget.checked)
+                                }
+                            />
+                        </label>
+                        <input
+                            type="number"
+                            min={0}
+                            max={1000}
+                            hidden={!manualGasCheck}
+                            value={userDefinedGas}
+                            name="userDefinedGas"
+                            onChange={handleChangeUserGasPrice}
+                        />
+                    </div>
+
                     <div className={styles.submit}>
-                        <button type="submit">Save Market</button>
+                        <button
+                            disabled={
+                                manualGasCheck && Number.isNaN(userDefinedGas)
+                            }
+                            type="submit"
+                        >
+                            Save Market
+                        </button>
+                        <p
+                            hidden={
+                                !manualGasCheck ||
+                                (manualGasCheck &&
+                                    !Number.isNaN(userDefinedGas))
+                            }
+                        >
+                            Manually input gas is invalid
+                        </p>
                     </div>
                 </form>
             )}

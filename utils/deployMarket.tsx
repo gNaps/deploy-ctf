@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
-import { BigNumber } from "@ethersproject/bignumber";
 import { Market } from "../models/Market";
 import {
     CONDITIONAL_TOKENS_ADDRESS,
