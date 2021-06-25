@@ -217,15 +217,20 @@ export default function Home() {
 
                     <div>
                         <label htmlFor="manualGasPrice">
-                            Manually enter gas price?
-                            <input
-                                id="manualGasPrice"
-                                type="checkbox"
-                                checked={manualGasCheck}
-                                onChange={(e) =>
-                                    setManualGasCheck(e.currentTarget.checked)
-                                }
-                            />
+                            <div>
+                                <input
+                                    style={{ width: "20px", margin: "1.5px" }}
+                                    id="manualGasPrice"
+                                    type="checkbox"
+                                    checked={manualGasCheck}
+                                    onChange={(e) =>
+                                        setManualGasCheck(
+                                            e.currentTarget.checked,
+                                        )
+                                    }
+                                />
+                                <small>Manually enter gas price?</small>
+                            </div>
                         </label>
                         <input
                             type="number"
