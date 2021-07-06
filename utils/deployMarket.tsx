@@ -92,7 +92,7 @@ export const deployMarket = async (
     );
 
     console.log("Preparing Condition...");
-    const prepareTx = await prepareCondition(conditionalTokens, market);
+    const prepareTx = await prepareCondition(conditionalTokens, market, gasPrice);
     await prepareTx.wait();
     console.log("Deploying Market...");
     const deployTx = await deployPolymarket(
