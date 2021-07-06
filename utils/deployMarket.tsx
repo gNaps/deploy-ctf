@@ -27,6 +27,7 @@ const getQuestionId = (title: string, description: string): string => {
 const prepareCondition = async (
     conditionalTokensContract: ethers.Contract,
     market: Market,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const { condition, question } = market;
     const questionId = getQuestionId(question.title, question.description);
@@ -36,6 +37,7 @@ const prepareCondition = async (
         condition.oracle,
         questionId,
         numOutcomes,
+        { gasPrice },
     );
 };
 
@@ -51,6 +53,7 @@ const deployPolymarket = async (
     conditionalTokensAddress: string,
     collateralTokenAddress: string,
     market: Market,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const questionObject = {
         question: market.question,
@@ -62,6 +65,7 @@ const deployPolymarket = async (
         collateralTokenAddress,
         questionObject,
         fee,
+        { gasPrice },
     );
 };
 
@@ -96,6 +100,7 @@ export const deployMarket = async (
         conditionalTokens.address,
         USDC_ADDRESS,
         market,
+        gasPrice,
     );
 
     return deployTx;
