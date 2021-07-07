@@ -19,10 +19,6 @@
     margin: 0;
 }
 
-.table .element:nth-of-type(even) {
-    background: #f3f3f3;
-}
-
 .form_market button {
     background-color: #000;
     border-radius: 1px;

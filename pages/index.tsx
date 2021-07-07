@@ -124,7 +124,7 @@ export default function Home() {
         try {
             const gasPrice = await getGasPrice(userDefinedGas, provider);
             const deployRes = await deployMarket(market, signer, gasPrice);
-            alert(`deployRes ${deployRes?.hash}`);
+            alert(`deploy transaction hash: ${deployRes?.hash}`);
         } catch (err) {
             alert(`Something went wrong ${err.toString()}`);
         }
