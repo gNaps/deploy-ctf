@@ -213,6 +213,9 @@ export default function Home() {
                         value={fee}
                         name="fee"
                         onChange={handleChangeFee}
+                        onWheelCapture={(e) => {
+                            e.target.blur();
+                        }}
                     />
 
                     <div>
