@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useContext, useState, FormEvent } from "react";
 
+import { bufferToHex, generateAddress, toBuffer } from "ethereumjs-util";
 import AuthContext from "../context/AuthContext";
 import { deployMarket } from "../utils/deployMarket";
 import { getGasPrice } from "../utils/gas_lib";
@@ -10,6 +11,7 @@ import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
 import { Question } from "../models/Question";
 import { Condition } from "../models/Condition";
+import { POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS } from "../utils/network";
 
 export default function Home() {
     const { user, provider } = useContext(AuthContext);
@@ -24,6 +26,22 @@ export default function Home() {
     const [confirm, setConfirm] = useState(false);
     const [manualGasCheck, setManualGasCheck] = useState(false);
     const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
+    const [mmAddress, setMmAddress] = useState("");
+
+    const getFutureAddress = async () => {
+        const nonce = await provider.getTransactionCount(
+            POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
+        );
+        console.log(nonce);
+        const futureAddress = bufferToHex(
+            generateAddress(
+                toBuffer(POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS),
+                toBuffer(nonce),
+            ),
+        );
+        console.log(futureAddress);
+        setMmAddress(futureAddress);
+    };
 
     /**
      * On change of inputs update the question
@@ -128,10 +146,12 @@ export default function Home() {
         const condition = new Condition(outcomes, oracle);
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
+        getFutureAddress();
+        console.log(signer);
         try {
             const gasPrice = await getGasPrice(userDefinedGas, provider);
             const deployRes = await deployMarket(market, signer, gasPrice);
-            alert(`deploy transaction hash: ${deployRes?.hash}`);
+        
         } catch (err) {
             alert(`Something went wrong ${err.toString()}`);
         }
