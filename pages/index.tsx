@@ -33,7 +33,6 @@ export default function Home() {
     const [manualGasCheck, setManualGasCheck] = useState(false);
     const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
     const [mmAddress, setMmAddress] = useState();
-    const [hasAddress, setHasAddress] = useState(false);
 
     /**
      * On change of inputs update the question
@@ -214,16 +213,16 @@ export default function Home() {
         }
         setConfirm(false);
         setLoading(false);
-        alert(`Market deployed at ${mmAddress} `);
+        alert(
+            `Market ${question.title} deployed at ${mmAddress} and added to strapi `,
+        );
         setMmAddress(undefined);
-    
     };
 
     useEffect(() => {
         if (mmAddress) {
             create();
         }
-     
     }, [mmAddress]);
 
     return (

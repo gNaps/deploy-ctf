@@ -1,7 +1,5 @@
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { Market, StrapiMarketsPostResponse } from "../interfaces";
-
 class APIClient {
     public axios: AxiosInstance;
 
@@ -9,15 +7,21 @@ class APIClient {
         this.axios = Axios.create(axiosConfig);
     }
 
+    public getUser(
+        authToken: string,
+    ): Promise<AxiosResponse<Record<string, unknown>>> {
+        return this.axios.get<Record<string, unknown>>("/users/me", {
+            headers: { authorization: `Bearer ${authToken}` },
+        });
+    }
+
     public addMarket(
         market: Record<string, unknown>,
         authToken: string,
-    ): Promise<AxiosResponse<Market>> {
-        return this.axios.post<StrapiMarketsPostResponse>(
-            "/markets",
-            { market },
-            { headers: { authorization: `Bearer ${authToken}` } },
-        );
+    ): Promise<AxiosResponse<Record<string, unknown>>> {
+        return this.axios.post<Record<string, unknown>>("/markets", market, {
+            headers: { authorization: `Bearer ${authToken}` },
+        });
     }
 }
 

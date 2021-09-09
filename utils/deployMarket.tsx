@@ -5,7 +5,6 @@ import {
     ORACLE_ADDRESS,
     CONDITIONAL_TOKENS_ADDRESS,
     POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
-    STRAPI_URL,
     USDC_ADDRESS,
 } from "./network";
 
@@ -13,16 +12,11 @@ import { Market } from "../models/Market";
 
 import abi from "./abi/ConditionalTokens.json";
 import abiPolymarket from "./abi/PolymarketMarketMakerFactory.json";
-import APIClient from "../api/ApiClient";
+import { APIWebClient } from "../api/ApiWebClient";
 
 const iFixedProductMarketMakerCreation = new Interface([
     "event FixedProductMarketMakerCreation (address indexed creator, address fixedProductMarketMaker, address indexed conditionalTokens, address indexed collateralToken, bytes32[] conditionIds, uint fee)",
 ]);
-
-const APIWebClient = new APIClient({
-    baseURL: STRAPI_URL,
-    timeout: 60000,
-});
 
 // Credits: https://gist.github.com/mathewbyrne/1280286
 const slugify = (text = "") =>
@@ -180,20 +174,19 @@ export const createStrapiMarket = async (
         signer,
     );
     let oracle;
-    let conditionId;
+
     if (market.oracle === "") {
         oracle = ORACLE_ADDRESS;
     } else {
         oracle = market.oracle;
     }
-    if (oracle !== "") {
-        conditionId = await conditionalTokens.getConditionId(
-            oracle,
-            questionId,
-            numOutcomes,
-        );
-    }
-    console.log(conditionId);
+
+    const conditionId = await conditionalTokens.getConditionId(
+        oracle,
+        questionId,
+        numOutcomes,
+    );
+    console.log("Creating Strapi Market...");
 
     const response = await APIWebClient.addMarket(
         {

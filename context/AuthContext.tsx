@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 import { createContext, useState, useEffect, useContext } from "react";
 import { Magic } from "magic-sdk";
 import { useRouter } from "next/router";
@@ -6,6 +7,7 @@ import { ethers } from "ethers";
 import { MATIC_CONFIG, MAGIC_KEY } from "../utils/network";
 
 import { User } from "../models/User";
+import { APIWebClient } from "../api/ApiWebClient";
 
 interface AuthContext {
     user: User | null;
@@ -44,28 +46,6 @@ export const AuthProvider = (props) => {
             setUser(user);
         }
     };
-
-    /**
-     * Log the user in
-     * @param {string} email
-     */
-    const loginUser = async (email: string) => {
-        try {
-            await magic.auth.loginWithMagicLink({ email });
-            const magicProvider = new ethers.providers.Web3Provider(
-                magic.rpcProvider,
-            );
-            const signer = magicProvider.getSigner();
-            const address = await signer.getAddress();
-            setProvider(magicProvider);
-            setUser({ email, address });
-
-            router.push("/");
-        } catch (err) {
-            logoutUser();
-        }
-    };
-
     /**
      * Retrieve Magic Issued Bearer Token
      * This allows User to make authenticated requests
@@ -83,6 +63,33 @@ export const AuthProvider = (props) => {
     };
 
     /**
+     * Log the user in
+     * @param {string} email
+     */
+    const loginUser = async (email: string) => {
+        try {
+            await magic.auth.loginWithMagicLink({ email });
+            const magicProvider = new ethers.providers.Web3Provider(
+                magic.rpcProvider,
+            );
+            const token = await getToken();
+            const userRole = await APIWebClient.getUser(token);
+            if (userRole.data.role["id"] !== 3) {
+                throw new Error("You are not authorized to use this app");
+            }
+            const signer = magicProvider.getSigner();
+            const address = await signer.getAddress();
+            setProvider(magicProvider);
+            setUser({ email, address });
+
+            router.push("/");
+        } catch (err) {
+            logoutUser();
+            alert(err);
+        }
+    };
+
+    /**
      * If user is logged in, get data and display it
      */
     const checkUserLoggedIn = async () => {
@@ -96,12 +103,18 @@ export const AuthProvider = (props) => {
                 );
                 const signer = magicProvider.getSigner();
                 const address = await signer.getAddress();
-                console.log(await magic.user.getMetadata());
+                const token = await getToken();
+                const userRole = await APIWebClient.getUser(token);
+                if (userRole.data.role["id"] !== 3) {
+                    throw new Error("You are not authorized to use this app");
+                }
+
                 setProvider(magicProvider);
                 setUser({ email, address });
             }
         } catch (err) {
             logoutUser();
+            alert(err);
         }
     };
 
