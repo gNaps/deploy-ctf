@@ -1,14 +1,15 @@
 import { BigNumber, ethers } from "ethers";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
-
-import { Interface } from "ethers/lib/utils";
-import { Market } from "../models/Market";
+import { getAddress, Interface } from "ethers/lib/utils";
 import {
+    ORACLE_ADDRESS,
     CONDITIONAL_TOKENS_ADDRESS,
     POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
     STRAPI_URL,
     USDC_ADDRESS,
 } from "./network";
+
+import { Market } from "../models/Market";
 
 import abi from "./abi/ConditionalTokens.json";
 import abiPolymarket from "./abi/PolymarketMarketMakerFactory.json";
@@ -17,10 +18,22 @@ import APIClient from "../api/ApiClient";
 const iFixedProductMarketMakerCreation = new Interface([
     "event FixedProductMarketMakerCreation (address indexed creator, address fixedProductMarketMaker, address indexed conditionalTokens, address indexed collateralToken, bytes32[] conditionIds, uint fee)",
 ]);
+
 const APIWebClient = new APIClient({
     baseURL: STRAPI_URL,
     timeout: 60000,
 });
+
+// Credits: https://gist.github.com/mathewbyrne/1280286
+const slugify = (text = "") =>
+    text
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, "-") // Replace spaces with -
+        .replace(/[^\w-]+/g, "") // Remove all non-word chars
+        .replace(/--+/g, "-") // Replace multiple - with single -
+        .replace(/^-+/, "") // Trim - from start of text
+        .replace(/-+$/, ""); // Trim - from end of text
 
 /**
  * Returns the questionId hashing title and description
@@ -80,7 +93,6 @@ const deployPolymarket = async (
         fee,
         { gasPrice },
     );
-    console.log("address", marketMaker.address);
     return marketMaker;
 };
 
@@ -137,8 +149,76 @@ export const deployMarket = async (
 
     console.log(data);
 
-    return receipt;
+    return data.fixedProductMarketMaker;
 };
-const createStrapiMarket = async (token, market) => {
-    APIWebClient.addMarket(token, market);
+export const createStrapiMarket = async (
+    market: {
+        question: any;
+        outcomes?: any[];
+        oracle?: string;
+        category?: string;
+        image?: string;
+        icon?: string;
+        fee?: number;
+        endDate?: string;
+        resolutionSource?: string;
+        submittedBy?: string;
+        wideFormat?: boolean;
+        mmAddress: any;
+    },
+    signer: ethers.Signer,
+    token: string,
+) => {
+    const questionId = getQuestionId(
+        market.question.title,
+        market.question.description,
+    );
+    const numOutcomes = market.outcomes.length;
+    const conditionalTokens = new ethers.Contract(
+        CONDITIONAL_TOKENS_ADDRESS,
+        abi,
+        signer,
+    );
+    let oracle;
+    let conditionId;
+    if (market.oracle === "") {
+        oracle = ORACLE_ADDRESS;
+    } else {
+        oracle = market.oracle;
+    }
+    if (oracle !== "") {
+        conditionId = await conditionalTokens.getConditionId(
+            oracle,
+            questionId,
+            numOutcomes,
+        );
+    }
+    console.log(conditionId);
+
+    const response = await APIWebClient.addMarket(
+        {
+            question: market.question.title,
+            description: market.question.description,
+            slug: slugify(market.question.title),
+            category: market.category,
+            image: market.image,
+            icon: market.icon,
+            marketMakerAddress: getAddress(market.mmAddress),
+            outcomePrices: market.outcomes.map(() => "0"),
+            outcomes: market.outcomes,
+            resolution_source: market.resolutionSource,
+            end_date: market.endDate,
+            submitted_by: market.submittedBy,
+            liquidity: "0",
+            conditionId,
+            volume: "0",
+            fee: market.fee.toString(),
+            wide_format: market.wideFormat,
+            new: true,
+            active: false,
+            closed: false,
+        },
+        token,
+    );
+    console.log("market", response);
 };

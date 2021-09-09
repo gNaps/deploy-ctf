@@ -12,7 +12,7 @@ interface AuthContext {
     loginUser: (email: string) => void;
     logoutUser: () => void;
     checkUserLoggedIn: () => void;
-    getToken: () => void;
+    getToken: () => Promise<string>;
     provider: ethers.providers.Web3Provider | null;
 }
 
@@ -59,6 +59,7 @@ export const AuthProvider = (props) => {
             const address = await signer.getAddress();
             setProvider(magicProvider);
             setUser({ email, address });
+
             router.push("/");
         } catch (err) {
             logoutUser();
@@ -74,7 +75,6 @@ export const AuthProvider = (props) => {
 
         try {
             token = await magic.user.getIdToken();
-            localStorage.setItem("token", token);
         } catch (err) {
             logoutUser();
         }
@@ -96,6 +96,7 @@ export const AuthProvider = (props) => {
                 );
                 const signer = magicProvider.getSigner();
                 const address = await signer.getAddress();
+                console.log(await magic.user.getMetadata());
                 setProvider(magicProvider);
                 setUser({ email, address });
             }

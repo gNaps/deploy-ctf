@@ -1,3 +1,16 @@
+/* eslint-disable camelcase */
+export type UseCase = { id: number; title: string; content: string };
+export type ConditionId = string;
+type timestamp = string;
+export interface Seo {
+    meta_title: string;
+    meta_description: string;
+    meta_image: {
+        url: string;
+        alternativeText: string;
+    };
+}
+
 export interface Market {
     id: number;
     question: string;

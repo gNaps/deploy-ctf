@@ -10,17 +10,13 @@ class APIClient {
     }
 
     public addMarket(
+        market: Record<string, unknown>,
         authToken: string,
-        market: Market,
     ): Promise<AxiosResponse<Market>> {
         return this.axios.post<StrapiMarketsPostResponse>(
             "/markets",
-            {
-                market,
-            },
-            {
-                headers: { authorization: `Bearer ${authToken}` },
-            },
+            { market },
+            { headers: { authorization: `Bearer ${authToken}` } },
         );
     }
 }

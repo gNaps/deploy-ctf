@@ -1,9 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
-import { useContext, useState, FormEvent } from "react";
+import { useContext, useState, FormEvent, useEffect } from "react";
 
-import { bufferToHex, generateAddress, toBuffer } from "ethereumjs-util";
 import AuthContext from "../context/AuthContext";
-import { deployMarket } from "../utils/deployMarket";
+import { createStrapiMarket, deployMarket } from "../utils/deployMarket";
 import { getGasPrice } from "../utils/gas_lib";
 import Confirm from "../components/Confirm";
 
@@ -11,37 +11,29 @@ import styles from "../styles/Home.module.css";
 import { Market } from "../models/Market";
 import { Question } from "../models/Question";
 import { Condition } from "../models/Condition";
-import { POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS } from "../utils/network";
 
 export default function Home() {
-    const { user, provider } = useContext(AuthContext);
+    const { user, provider, getToken } = useContext(AuthContext);
     const [question, setQuestion] = useState(new Question());
     const [outcomes, setOutcomes] = useState([]);
     const [outcome, setOutcome] = useState("");
+    const [category, setCategory] = useState("");
+    const [image, setImage] = useState<string>("");
+    const [icon, setIcon] = useState<string>("");
     const [fee, setFee] = useState(0.02);
     const [oracle, setOracle] = useState("");
+    const [resolutionSource, setResolutionSource] = useState("");
+    const [submittedBy, setSubmittedBy] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [wideFormat, setWideformat] = useState<boolean>(false);
     const [checkTitle, setCheckTitle] = useState(false);
     const [checkDescription, setCheckDescription] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState(false);
     const [manualGasCheck, setManualGasCheck] = useState(false);
     const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
-    const [mmAddress, setMmAddress] = useState("");
-
-    const getFutureAddress = async () => {
-        const nonce = await provider.getTransactionCount(
-            POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS,
-        );
-        console.log(nonce);
-        const futureAddress = bufferToHex(
-            generateAddress(
-                toBuffer(POLYMARKET_MARKET_MAKER_FACTORY_ADDRESS),
-                toBuffer(nonce),
-            ),
-        );
-        console.log(futureAddress);
-        setMmAddress(futureAddress);
-    };
+    const [mmAddress, setMmAddress] = useState();
+    const [hasAddress, setHasAddress] = useState(false);
 
     /**
      * On change of inputs update the question
@@ -84,11 +76,54 @@ export default function Home() {
     };
 
     /**
+     * On change of inputs update the category
+     * @param e
+     */
+    const handleChangeCategory = (e: FormEvent<HTMLInputElement>) => {
+        setCategory(e.currentTarget.value);
+    };
+
+    /**
+     * On change of inputs update the image
+     * @param e
+     */
+    const handleChangeImage = (e: FormEvent<HTMLInputElement>) => {
+        setImage(e.currentTarget.value);
+    };
+    /**
+     * On change of inputs update the icon
+     * @param e
+     */
+    const handleChangeIcon = (e: FormEvent<HTMLInputElement>) => {
+        setIcon(e.currentTarget.value);
+    };
+    /**
      * On change of inputs update the oracle
      * @param e
      */
     const handleChangeOracle = (e: FormEvent<HTMLInputElement>) => {
         setOracle(e.currentTarget.value);
+    };
+    /**
+     * On change of inputs update the end date
+     * @param e
+     */
+    const handleChangeEndDate = (e: FormEvent<HTMLInputElement>) => {
+        setEndDate(e.currentTarget.value);
+    };
+    /**
+     * On change of inputs update the oracle
+     * @param e
+     */
+    const handleChangeResolutionSource = (e: FormEvent<HTMLInputElement>) => {
+        setResolutionSource(e.currentTarget.value);
+    };
+    /**
+     * On change of inputs update the oracle
+     * @param e
+     */
+    const handleChangeSubmittedBy = (e: FormEvent<HTMLInputElement>) => {
+        setSubmittedBy(e.currentTarget.value);
     };
     /**
      * Prevent fee changing on scroll
@@ -146,19 +181,50 @@ export default function Home() {
         const condition = new Condition(outcomes, oracle);
         const market: Market = new Market(question, condition, fee);
         const signer = provider.getSigner();
-        getFutureAddress();
-        console.log(signer);
+
         try {
             const gasPrice = await getGasPrice(userDefinedGas, provider);
-            const deployRes = await deployMarket(market, signer, gasPrice);
-        
+            const deployAddress = await deployMarket(market, signer, gasPrice);
+            setMmAddress(deployAddress);
         } catch (err) {
             alert(`Something went wrong ${err.toString()}`);
         }
-
+    };
+    const create = async () => {
+        const data = {
+            question,
+            outcomes,
+            category,
+            oracle,
+            image,
+            icon,
+            fee,
+            endDate,
+            resolutionSource,
+            submittedBy,
+            wideFormat,
+            mmAddress,
+        };
+        try {
+            const token = await getToken();
+            console.log(token);
+            await createStrapiMarket(data, provider.getSigner(), token);
+        } catch (err) {
+            alert(err.message);
+        }
         setConfirm(false);
         setLoading(false);
+        alert(`Market deployed at ${mmAddress} `);
+        setMmAddress(undefined);
+    
     };
+
+    useEffect(() => {
+        if (mmAddress) {
+            create();
+        }
+     
+    }, [mmAddress]);
 
     return (
         <div>
@@ -195,6 +261,27 @@ export default function Home() {
                     {checkDescription && (
                         <p className={styles.check_p}> Required </p>
                     )}
+                    <h3> Category </h3>
+                    <input
+                        type="text"
+                        value={category}
+                        name="Category"
+                        onChange={handleChangeCategory}
+                    />
+                    <h3> Image </h3>
+                    <input
+                        type="text"
+                        value={image}
+                        name="Image"
+                        onChange={handleChangeImage}
+                    />
+                    <h3> Icon </h3>
+                    <input
+                        type="text"
+                        value={icon}
+                        name="Icon"
+                        onChange={handleChangeIcon}
+                    />
 
                     <h3> Outcomes </h3>
                     <input
@@ -225,6 +312,36 @@ export default function Home() {
                             ))}
                         </div>
                     )}
+                    <h3> Wide Format </h3>
+
+                    <div className={styles.toggle_content}>
+                        <div className={styles.toggle_body}>
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() => setWideformat(true)}
+                                    className={
+                                        wideFormat
+                                            ? styles.button_yes
+                                            : styles.button_no
+                                    }
+                                >
+                                    Yes
+                                </button>
+                                <button
+                                    type="button"
+                                    className={
+                                        wideFormat
+                                            ? styles.button_no
+                                            : styles.button_yes
+                                    }
+                                    onClick={() => setWideformat(false)}
+                                >
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <h3> Oracle </h3>
                     <input
@@ -232,6 +349,27 @@ export default function Home() {
                         value={oracle}
                         name="oracle"
                         onChange={handleChangeOracle}
+                    />
+                    <h3> End Date </h3>
+                    <input
+                        type="date"
+                        value={endDate}
+                        name="endDate"
+                        onChange={handleChangeEndDate}
+                    />
+                    <h3> Resolution Source </h3>
+                    <input
+                        type="text"
+                        value={resolutionSource}
+                        name="resolutionSource"
+                        onChange={handleChangeResolutionSource}
+                    />
+                    <h3> Submitted By </h3>
+                    <input
+                        type="text"
+                        value={submittedBy}
+                        name="submittedBy"
+                        onChange={handleChangeSubmittedBy}
                     />
 
                     <h3> Fee </h3>
@@ -295,7 +433,9 @@ export default function Home() {
 
             {confirm && (
                 <Confirm
-                    yes={deploy}
+                    yes={async () => {
+                        await deploy();
+                    }}
                     no={() => {
                         setConfirm(false);
                         setLoading(false);
