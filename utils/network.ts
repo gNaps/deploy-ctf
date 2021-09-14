@@ -63,7 +63,7 @@ const environments: { mainnet: Environment; mumbai: Environment } = {
             chainId: 137,
             explorerUrl: "https://explorer-mainnet.maticvigil.com",
         },
-        strapiUrl: "https://polymarket-strapi-matic.herokuapp.com/",
+        strapiUrl: "https://strapi-matic.poly.market",
         subgraphUrl:
             "https://subgraph-backup.poly.market/subgraphs/name/TokenUnion/polymarket",
         maticUsdc: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
