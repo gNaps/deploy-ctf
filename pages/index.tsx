@@ -187,6 +187,8 @@ export default function Home() {
             setMmAddress(deployAddress);
         } catch (err) {
             alert(`Something went wrong ${err.toString()}`);
+            setLoading(false);
+            setConfirm(false);
         }
     };
     const create = async () => {
@@ -204,18 +206,30 @@ export default function Home() {
             wideFormat,
             mmAddress,
         };
+        let responseStatus;
         try {
             const token = await getToken();
-            console.log(token);
-            await createStrapiMarket(data, provider.getSigner(), token);
+            responseStatus = await createStrapiMarket(
+                data,
+                provider.getSigner(),
+                token,
+            );
         } catch (err) {
-            alert(err.message);
+            alert(`Something went wrong ${err.toString()}`);
+            setLoading(false);
+            setConfirm(false);
         }
         setConfirm(false);
         setLoading(false);
-        alert(
-            `Market ${question.title} deployed at ${mmAddress} and added to strapi `,
-        );
+        if (responseStatus === 200) {
+            alert(
+                `Market ${question.title} deployed at ${mmAddress} and added to strapi `,
+            );
+        } else {
+            alert(
+                `Market ${question.title} deployed at ${mmAddress}. Strapi creation failed`,
+            );
+        }
         setMmAddress(undefined);
     };
 

@@ -141,8 +141,6 @@ export const deployMarket = async (
         if (data) break;
     }
 
-    console.log(data);
-
     return data.fixedProductMarketMaker;
 };
 export const createStrapiMarket = async (
@@ -162,7 +160,7 @@ export const createStrapiMarket = async (
     },
     signer: ethers.Signer,
     token: string,
-) => {
+): Promise<number> => {
     const questionId = getQuestionId(
         market.question.title,
         market.question.description,
@@ -214,4 +212,5 @@ export const createStrapiMarket = async (
         token,
     );
     console.log("market", response);
+    return response.status;
 };
