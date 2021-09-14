@@ -74,7 +74,8 @@ export const AuthProvider = (props) => {
             );
             const token = await getToken();
             const userRole = await APIWebClient.getUser(token);
-            if (userRole.data.role["id"] !== 3) {
+            console.log(userRole.data.role);
+            if (userRole.data.role["name"] !== "Market Creator") {
                 throw new Error("You are not authorized to use this app");
             }
             const signer = magicProvider.getSigner();
@@ -105,7 +106,7 @@ export const AuthProvider = (props) => {
                 const address = await signer.getAddress();
                 const token = await getToken();
                 const userRole = await APIWebClient.getUser(token);
-                if (userRole.data.role["id"] !== 3) {
+                if (userRole.data.role["name"] !== "Market Creator") {
                     throw new Error("You are not authorized to use this app");
                 }
 
