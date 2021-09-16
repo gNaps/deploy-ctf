@@ -145,8 +145,9 @@ export const deployMarket = async (
 };
 export const createStrapiMarket = async (
     market: {
-        question: any;
-        outcomes?: any[];
+        title: string;
+        description: string;
+        outcomes?: string[];
         oracle?: string;
         category?: string;
         image?: string;
@@ -156,15 +157,12 @@ export const createStrapiMarket = async (
         resolutionSource?: string;
         submittedBy?: string;
         wideFormat?: boolean;
-        mmAddress: any;
+        mmAddress: string;
     },
     signer: ethers.Signer,
     token: string,
 ): Promise<number> => {
-    const questionId = getQuestionId(
-        market.question.title,
-        market.question.description,
-    );
+    const questionId = getQuestionId(market.title, market.description);
     const numOutcomes = market.outcomes.length;
     const conditionalTokens = new ethers.Contract(
         CONDITIONAL_TOKENS_ADDRESS,
@@ -184,13 +182,13 @@ export const createStrapiMarket = async (
         questionId,
         numOutcomes,
     );
-    console.log("Creating Strapi Market...");
+   
 
     const response = await APIWebClient.addMarket(
         {
-            question: market.question.title,
-            description: market.question.description,
-            slug: slugify(market.question.title),
+            question: market.title,
+            description: market.description,
+            slug: slugify(market.title),
             category: market.category,
             image: market.image,
             icon: market.icon,
@@ -203,7 +201,7 @@ export const createStrapiMarket = async (
             liquidity: "0",
             conditionId,
             volume: "0",
-            fee: market.fee.toString(),
+            fee: ethers.utils.parseEther(market.fee.toString()).toString(),
             wide_format: market.wideFormat,
             new: true,
             active: false,
