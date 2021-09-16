@@ -27,7 +27,6 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState(false);
     const [manualGasCheck, setManualGasCheck] = useState(false);
-    const [userDefinedGas, setUserDefinedGas] = useState<number>(0);
 
     const {
         register,
@@ -157,7 +156,7 @@ export default function Home() {
         const signer = provider.getSigner();
 
         try {
-            const gasPrice = await getGasPrice(userDefinedGas, provider);
+            const gasPrice = await getGasPrice(data.userDefinedGas, provider);
             const deployAddress = await deployMarket(market, signer, gasPrice);
             setValue(Form.MarketMakerAddress, deployAddress);
         } catch (err) {
@@ -360,7 +359,8 @@ export default function Home() {
                     <div className={styles.submit}>
                         <button
                             disabled={
-                                manualGasCheck && Number.isNaN(userDefinedGas)
+                                manualGasCheck &&
+                                Number.isNaN(Form.UserDefinedGas)
                             }
                             type="submit"
                         >
@@ -370,7 +370,7 @@ export default function Home() {
                             hidden={
                                 !manualGasCheck ||
                                 (manualGasCheck &&
-                                    !Number.isNaN(userDefinedGas))
+                                    !Number.isNaN(Form.UserDefinedGas))
                             }
                         >
                             Manually input gas is invalid
