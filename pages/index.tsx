@@ -237,12 +237,12 @@ export default function Home() {
                         {...register(Form.Title, { required: true })}
                         type="text"
                     />
-
+                    {errors.title && " Required"}
                     <h6>Description</h6>
                     <textarea
                         {...register(Form.Description, { required: true })}
                     />
-
+                    {errors.description && " Required"}
                     <h3> Category </h3>
                     <input {...register(Form.Category)} type="text" />
                     <h3> Image </h3>
