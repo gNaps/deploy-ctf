@@ -55,7 +55,6 @@ export default function Home() {
         },
     });
     const hasAddress = watch(Form.MarketMakerAddress);
-    const outcome = register(Form.Outcome);
 
     /**
      * On change of inputs update the outcome
@@ -64,7 +63,6 @@ export default function Home() {
     const handleChangeOutcome = (e: FormEvent<HTMLInputElement>) => {
         setOutcomeState(e.currentTarget.value);
         setValue(Form.Outcome, e.currentTarget.value);
-        console.log(getValues(Form.Outcome));
     };
 
     /**
@@ -140,7 +138,6 @@ export default function Home() {
         }
 
         setValue(Form.Outcomes, newOutcomes);
-        console.log(getValues(Form.Outcomes));
     };
 
     const onSubmit = () => {
@@ -213,7 +210,6 @@ export default function Home() {
     };
 
     useEffect(() => {
-        console.log(hasAddress);
         if (hasAddress) {
             handleSubmit(create)();
         }
