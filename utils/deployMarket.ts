@@ -172,12 +172,8 @@ export const createStrapiMarket = async (
     let oracle;
     let outcomes;
 
-    if (
-        market.outcomes.length < 2 ||
-        !market.outcomes[0] ||
-        !market.outcomes[1]
-    ) {
-        outcomes = ["yes", "no"];
+    if (market.outcomes.length === 0) {
+        outcomes = ["Yes", "No"];
     } else {
         outcomes = market.outcomes;
     }
