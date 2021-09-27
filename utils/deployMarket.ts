@@ -170,7 +170,17 @@ export const createStrapiMarket = async (
         signer,
     );
     let oracle;
+    let outcomes;
 
+    if (
+        market.outcomes.length < 2 ||
+        !market.outcomes[0] ||
+        !market.outcomes[1]
+    ) {
+        outcomes = ["yes", "no"];
+    } else {
+        outcomes = market.outcomes;
+    }
     if (market.oracle === "") {
         oracle = ORACLE_ADDRESS;
     } else {
@@ -182,7 +192,6 @@ export const createStrapiMarket = async (
         questionId,
         numOutcomes,
     );
-   
 
     const response = await APIWebClient.addMarket(
         {
@@ -194,7 +203,7 @@ export const createStrapiMarket = async (
             icon: market.icon,
             marketMakerAddress: getAddress(market.mmAddress),
             outcomePrices: market.outcomes.map(() => "0"),
-            outcomes: market.outcomes,
+            outcomes,
             resolution_source: market.resolutionSource,
             end_date: market.endDate,
             submitted_by: market.submittedBy,
