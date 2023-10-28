@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
 import { Market } from "../models/Market";
 import {
@@ -27,6 +27,7 @@ const getQuestionId = (title: string, description: string): string => {
 const prepareCondition = async (
     conditionalTokensContract: ethers.Contract,
     market: Market,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const { condition, question } = market;
     const questionId = getQuestionId(question.title, question.description);
@@ -36,6 +37,7 @@ const prepareCondition = async (
         condition.oracle,
         questionId,
         numOutcomes,
+        { gasPrice },
     );
 };
 
@@ -51,6 +53,7 @@ const deployPolymarket = async (
     conditionalTokensAddress: string,
     collateralTokenAddress: string,
     market: Market,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const questionObject = {
         question: market.question,
@@ -62,6 +65,7 @@ const deployPolymarket = async (
         collateralTokenAddress,
         questionObject,
         fee,
+        { gasPrice },
     );
 };
 
@@ -73,6 +77,7 @@ const deployPolymarket = async (
 export const deployMarket = async (
     market: Market,
     signer: ethers.Signer,
+    gasPrice: BigNumber,
 ): Promise<any> => {
     const conditionalTokens = new ethers.Contract(
         CONDITIONAL_TOKENS_ADDRESS,
@@ -87,7 +92,7 @@ export const deployMarket = async (
     );
 
     console.log("Preparing Condition...");
-    const prepareTx = await prepareCondition(conditionalTokens, market);
+    const prepareTx = await prepareCondition(conditionalTokens, market, gasPrice);
     await prepareTx.wait();
     console.log("Deploying Market...");
     const deployTx = await deployPolymarket(
@@ -95,6 +100,7 @@ export const deployMarket = async (
         conditionalTokens.address,
         USDC_ADDRESS,
         market,
+        gasPrice,
     );
 
     return deployTx;

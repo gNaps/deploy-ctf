@@ -10,7 +10,9 @@
         "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
     },
     "dependencies": {
+        "@ethersproject/bignumber": "^5.3.0",
         "@ethersproject/solidity": "^5.0.8",
+        "axios": "^0.21.1",
         "date-fns": "^2.11.1",
         "ethers": "^5.0.26",
         "gray-matter": "^4.0.2",
